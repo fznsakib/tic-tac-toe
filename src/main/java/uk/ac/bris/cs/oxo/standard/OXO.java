@@ -25,11 +25,16 @@ public class OXO implements OXOGame {
 
 	public OXO(int size, Side startSide, Player noughtSide, Player crossSide) {
 
-
 		if(size <= 0)
 		{
 			throw new IllegalArgumentException("size invalid");
 		}
+
+		this.noughtSide = requireNonNull(noughtSide);
+		this.crossSide = requireNonNull(crossSide);
+		this.currentSide = requireNonNull(currentSide);
+
+		this.size = size;
 
 	}
 
