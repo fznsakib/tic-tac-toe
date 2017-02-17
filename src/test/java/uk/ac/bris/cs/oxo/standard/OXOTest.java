@@ -100,6 +100,7 @@ public class OXOTest {
 	public void testGameBoardIsAllEmptyBeforeStart() {
 		/// given a successfully created model, the board is empty at first
 		OXOGame game = factory.createGame(2, NOUGHT, mockPlayer(NOUGHT), mockPlayer(CROSS));
+
 		assertThat(game.board()).isEqualTo(new SquareMatrix<>(2, new Cell()));
 	}
 
