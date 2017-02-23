@@ -22,7 +22,7 @@ public class OXO implements OXOGame {
 	private Player noughtSide, crossSide;
 	private Side currentSide;
 	private int size;
-	private SquareMatrix<Cell> matrix;
+	private final SquareMatrix<Cell> matrix;
 
 	public OXO(int size, Side startSide, Player noughtSide, Player crossSide) {
 
@@ -37,7 +37,6 @@ public class OXO implements OXOGame {
 
 		this.size = size;
 		this.matrix = new SquareMatrix<Cell>(size, new Cell());
-		//this.matrix = new ImmutableMatrix<>(matrix);
 
 	}
 
@@ -61,7 +60,7 @@ public class OXO implements OXOGame {
 
 	@Override
 	public Matrix<Cell> board() {
-		return matrix;
+		return new ImmutableMatrix<>(matrix);
 	}
 
 	@Override
