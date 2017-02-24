@@ -17,7 +17,7 @@ import uk.ac.bris.cs.oxo.Player;
 import uk.ac.bris.cs.oxo.Side;
 import uk.ac.bris.cs.oxo.Spectator;
 
-public class OXO implements OXOGame {
+public class OXO implements OXOGame, Consumer<Move>  {
 
 	private Player noughtSide, crossSide;
 	private Side currentSide;
@@ -40,6 +40,35 @@ public class OXO implements OXOGame {
 
 	}
 
+	private Set<Move> validMoves() {
+	  Set<Move> moves = new HashSet<>();
+	  for (int row = 0; row < matrix.rowSize(); row++) {
+	    for (int col = 0; col < matrix.columnSize(); col++) {
+				if (matrix.get(row, col).isEmpty())
+				{
+					moves.add(new Move(row, col));
+				}
+	      //add moves here via moves.add(new Move(row, col)) if the matrix is empty at this location
+	  } }
+		return moves;
+	  //...
+	  //return the moves created
+	}
+
+	@Override
+   public void accept(Move move) {
+		 Set<Move> moves = validMoves();
+		 if (moves.contains(move))
+		 {
+			 matrix.put(move.row, move.column, new Cell(currentSide));
+		 }
+		 else
+		 {
+			 throw new IllegalArgumentException("Move invalid");
+		 }
+     // do something with the Move the current Player wants to play
+   }
+
 	@Override
 	public void registerSpectators(Spectator... spectators) {
 		// TODO
@@ -54,8 +83,9 @@ public class OXO implements OXOGame {
 
 	@Override
 	public void start() {
-		// TODO
-		throw new RuntimeException("Implement me");
+		Player player = (currentSide == Side.CROSS) ? crossSide : noughtSide;
+		player.makeMove(this, validMoves(), callback);
+		//throw new RuntimeException("Implement me");
 	}
 
 	@Override
@@ -67,4 +97,6 @@ public class OXO implements OXOGame {
 	public Side currentSide() {
 		return currentSide;
 	}
+
+
 }
