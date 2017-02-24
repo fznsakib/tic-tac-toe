@@ -23,6 +23,7 @@ public class OXO implements OXOGame, Consumer<Move>  {
 	private Side currentSide;
 	private int size;
 	private final SquareMatrix<Cell> matrix;
+	private final List<Spectator> spectators = new CopyOnWriteArrayList<>();
 
 	public OXO(int size, Side startSide, Player noughtSide, Player crossSide) {
 
@@ -61,30 +62,48 @@ public class OXO implements OXOGame, Consumer<Move>  {
 		 if (moves.contains(move))
 		 {
 			 matrix.put(move.row, move.column, new Cell(currentSide));
+			 for (int i = 0; i < spectators.size(); i++)
+			 {
+				 spectators.get(i).moveMade(currentSide, move);
+			 }
 		 }
 		 else
 		 {
 			 throw new IllegalArgumentException("Move invalid");
 		 }
+
+		 for (int i = 0; i < size; i++)
+		 {
+			 if (matrix.mainDiagonal)
+			 //while(matrix.mainDiagonal.get(i) == O)
+		 }
+
+		 /*for (int row = 0; row < size; row++)
+		 {
+			 for (int i = 0; i < size; i++)
+			 {
+			 	if matrix.row(row).get(i)
+			 }
+		 }*/
      // do something with the Move the current Player wants to play
    }
 
 	@Override
 	public void registerSpectators(Spectator... spectators) {
-		// TODO
-		throw new RuntimeException("Implement me");
+		this.spectators.addAll(Arrays.asList(spectators));
+		//throw new RuntimeException("Implement me");
 	}
 
 	@Override
 	public void unregisterSpectators(Spectator... spectators) {
-		// TODO
-		throw new RuntimeException("Implement me");
+		this.spectators.removeAll(Arrays.asList(spectators));
+		//throw new RuntimeException("Implement me");
 	}
 
 	@Override
 	public void start() {
 		Player player = (currentSide == Side.CROSS) ? crossSide : noughtSide;
-		player.makeMove(this, validMoves(), callback);
+		player.makeMove(this, validMoves(), this);
 		//throw new RuntimeException("Implement me");
 	}
 
