@@ -57,65 +57,116 @@ public class OXO implements OXOGame, Consumer<Move>  {
 	}
 
 	@Override
-   public void accept(Move move) {
+   public void accept(Move move)
+	 {
 		 Set<Move> moves = validMoves();
 		 if (moves.contains(move))
 		 {
 			 matrix.put(move.row, move.column, new Cell(currentSide));
-			 for (int i = 0; i < spectators.size(); i++)
+			 for (Spectator spectator : spectators)
 			 {
-				 spectators.get(i).moveMade(currentSide, move);
+				spectator.moveMade(currentSide, move);
+			 }
+			 if (straightLineFormed(currentSide))
+			 {
+					notifyGameOver(new Outcome(currentSide));
+			 }
+			 else if (noEmptyCells())
+			 {
+					notifyGameOver(new Outcome());
+			 }
+			 else
+			 {
+					currentSide = currentSide.other();
+					requestMove(currentPlayer());
 			 }
 		 }
 		 else
 		 {
 			 throw new IllegalArgumentException("Move invalid");
 		 }
-
-		 for (int i = 0; i < size; i++)
-		 {
-			 if (matrix.mainDiagonal)
-			 //while(matrix.mainDiagonal.get(i) == O)
-		 }
-
-		 /*for (int row = 0; row < size; row++)
-		 {
-			 for (int i = 0; i < size; i++)
-			 {
-			 	if matrix.row(row).get(i)
-			 }
-		 }*/
-     // do something with the Move the current Player wants to play
    }
+
 
 	@Override
 	public void registerSpectators(Spectator... spectators) {
 		this.spectators.addAll(Arrays.asList(spectators));
-		//throw new RuntimeException("Implement me");
 	}
 
 	@Override
 	public void unregisterSpectators(Spectator... spectators) {
 		this.spectators.removeAll(Arrays.asList(spectators));
-		//throw new RuntimeException("Implement me");
 	}
 
 	@Override
-	public void start() {
-		Player player = (currentSide == Side.CROSS) ? crossSide : noughtSide;
-		player.makeMove(this, validMoves(), this);
-		//throw new RuntimeException("Implement me");
+	public void start()
+	{
+		requestMove(currentPlayer());
+	}
+
+	private void requestMove(Player player)
+	{
+		moves = validMoves();
+		player.makeMove(this, moves, this);
 	}
 
 	@Override
-	public Matrix<Cell> board() {
+	public Matrix<Cell> board()
+	{
 		return new ImmutableMatrix<>(matrix);
 	}
 
 	@Override
-	public Side currentSide() {
+	public Side currentSide()
+	{
 		return currentSide;
 	}
 
+	private Player currentPlayer()
+	{
+		return currentSide == Side.CROSS ? crossSide : noughtSide;
+	}
+
+//Game Checks
+
+	private boolean noEmptyCells()
+		{
+			for (Cell cell : matrix.asList())
+				if (cell.isEmpty())
+				{
+					return false;
+				}
+			return true;
+		}
+
+	private void notifyGameOver(Outcome outcome)
+	{
+		for (Spectator spectator : spectators)
+		{
+			spectator.gameOver(outcome);
+		}
+	}
+
+	private boolean straightLineFormed(Side side)
+	{
+		for (int i = 0; i < matrix.columnSize(); i++)
+		{
+			if (onSameSide(side, matrix.row(i))) return true;
+			if (onSameSide(side, matrix.column(i))) return true;
+		}
+		if (onSameSide(side, matrix.mainDiagonal())) return true;
+		if (onSameSide(side, matrix.antiDiagonal())) return true;
+		return false;
+	}
+
+	private boolean onSameSide(Side side, List<Cell> cells)
+	{
+		for (Cell cell : cells)
+			if (!cell.sameSideAs(side))
+			{
+				return false;
+			}
+		return true;
+	}
 
 }
